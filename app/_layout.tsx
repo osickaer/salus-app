@@ -42,9 +42,9 @@ export default function RootLayout() {
 
   // If the user is authenticated, show the tab navigator; otherwise, show the Auth component
   return session && session.user ? (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
   ) : (
     <Auth />
   );
