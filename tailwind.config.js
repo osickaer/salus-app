@@ -17,6 +17,9 @@ module.exports = {
         darkContainer: "#202020", // for all containers/views
         accent1: "#2b2d42", // Dark slate
         accent2: "#008080", // Teal
+        protein: "#d55a5a", // pastel red
+        carbs: "#e8b923", // pastel yellow
+        fat: "#3aafa9", // pastel blue
 
         // Text colors for dark and light mode
         textPrimaryDark: "#f5f5f5", // Light text for dark mode
