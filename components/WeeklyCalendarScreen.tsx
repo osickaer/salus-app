@@ -1,24 +1,20 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import dayjs from "dayjs";
+import React from "react";
+import { View, Text, Dimensions} from "react-native";
 import { CalendarProvider, WeekCalendar } from "react-native-calendars";
 
-const WeekCalendarScreen = () => {
-  const [selectedDate, setSelectedDate] = useState(
-    dayjs().format("YYYY-MM-DD")
-  );
+interface WeekCalendarScreenProps {
+  selectedDate : string,
+  setSelectedDate : (date: string) => void
+}
 
-  // Handler for date selection
-  const handleDateChange = (date: string) => {
-    setSelectedDate(date);
-  };
 
+const WeekCalendarScreen: React.FC<WeekCalendarScreenProps> = ({ selectedDate, setSelectedDate }) => {
   return (
     <CalendarProvider date={selectedDate} showTodayButton={false}>
       <View>
         <WeekCalendar
           firstDay={0} // 0 = Sunday, 1 = Monday
-          onDayPress={(day) => handleDateChange(day.dateString)}
+          onDayPress={(day) => setSelectedDate(day.dateString)}
           markedDates={
             selectedDate
               ? {
@@ -36,6 +32,8 @@ const WeekCalendarScreen = () => {
             dayTextColor: "white",
             todayTextColor: "white",
           }}
+          calendarWidth={Dimensions.get("screen").width - 32}
+          pagingEnabled={false}
           // disableAllTouchEventsForDisabledDays={true}
         />
       </View>
