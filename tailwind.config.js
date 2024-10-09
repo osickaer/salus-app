@@ -11,7 +11,7 @@ module.exports = {
       colors: {
         primary: "#c99708", // yellow
         secondary: "#b22b2b", // red
-        darkBackground: "#111111", // for dark mode (default rn)
+        darkBackground: "#0E0E0E", // for dark mode (default rn)
         lightBackground: "#ffffff", // for light mode
         secondaryBackground: "#2C2C2C", // slightly lighter gray
         darkContainer: "#202020", // for all containers/views
@@ -51,7 +51,7 @@ module.exports = {
         sm: "8px",
         md: "12px",
         lg: "16px",
-        xl: "24px",
+        xl: "32px",
         full: "9999px",
       },
     },
