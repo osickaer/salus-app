@@ -89,7 +89,7 @@ export default function Chat() {
             </Text>
           </View>
           {/* Horizontal ScrollView */}
-          <ConversationsRow extraClassNames="ml-4 my-4" data={DATA} />
+          <ConversationsRow extraClassNames="my-4" data={DATA} />
           {/* Predefined Chats List */}
           <View className="mx-4 my-6">
             {/* Title for Suggested Topics */}

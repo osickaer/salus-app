@@ -17,7 +17,7 @@ const ConversationsRow = ({ data, extraClassNames }: ConversationsRowProps) => {
     <View className={`flex-row ${extraClassNames || ""}`}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {data.map((item) => (
-          <Container key={item.id} extraClassNames="w-48">
+          <Container key={item.id} extraClassNames="mx-2 w-48">
             <Text className="text-lg text-textPrimaryDark font-medium">
               {item.title}
             </Text>
