@@ -39,7 +39,7 @@ const WeekCalendarScreen: React.FC<WeekCalendarScreenProps> = ({
       showTodayButton={false}
     >
       {/* Title displaying the month and year */}
-      <View className="flex items-start m-4">
+      <View className="flex items-start mx-4 mt-4 mb-1">
         <Text className="text-textPrimaryDark text-xl font-medium">
           {currentMonthYear}
         </Text>
@@ -51,21 +51,21 @@ const WeekCalendarScreen: React.FC<WeekCalendarScreenProps> = ({
           <WeekCalendar
             firstDay={0}
             onDayPress={(day) => setSelectedDate(dayjs(day.dateString))} // Fix dayjs conversion
-            markedDates={
-              selectedDate
-                ? {
-                    [selectedDate.format("YYYY-MM-DD")]: {
-                      selected: true,
-                      selectedColor: "#c99708",
-                    },
-                  }
-                : {}
-            }
+            markedDates={{
+              [selectedDate.format("YYYY-MM-DD")]: {
+                selected: true,
+                selectedColor: "#c99708",
+              },
+              // [dayjs().format("YYYY-MM-DD")]: {
+              //   color: "blue",
+              // },
+            }}
             theme={{
               calendarBackground: "transparent",
               selectedDayBackgroundColor: "transparent",
               selectedDayTextColor: "white",
               dayTextColor: "white",
+              todayBackgroundColor: "#c997087a",
               todayTextColor: "white",
             }}
             calendarWidth={calendarWidth}
