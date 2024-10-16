@@ -31,6 +31,19 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="log"
+        options={{
+          title: "Log",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "create" : "create-outline"}
+              color={color}
+              className="ml-[2px]"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="history"
         options={{
           title: "History",
