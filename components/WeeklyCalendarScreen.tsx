@@ -12,6 +12,8 @@ interface WeekCalendarScreenProps {
   setSelectedDate: (date: dayjs.Dayjs) => void;
 }
 
+const today = dayjs();
+
 const WeekCalendarScreen: React.FC<WeekCalendarScreenProps> = ({
   selectedDate,
   setSelectedDate,
@@ -49,16 +51,21 @@ const WeekCalendarScreen: React.FC<WeekCalendarScreenProps> = ({
       <View onLayout={onLayout}>
         {calendarWidth && (
           <WeekCalendar
-            firstDay={0}
+            firstDay={1}
             onDayPress={(day) => setSelectedDate(dayjs(day.dateString))} // Fix dayjs conversion
             markedDates={{
               [selectedDate.format("YYYY-MM-DD")]: {
                 selected: true,
                 selectedColor: "#c99708",
               },
-              // [dayjs().format("YYYY-MM-DD")]: {
-              //   color: "blue",
-              // },
+              ...(today.isSame(selectedDate, "day")
+                ? {}
+                : {
+                    [today.format("YYYY-MM-DD")]: {
+                      selected: true,
+                      selectedColor: "#c997087a", // Adjusted to use "selectedColor" for consistency
+                    },
+                  }),
             }}
             theme={{
               calendarBackground: "transparent",
@@ -66,7 +73,7 @@ const WeekCalendarScreen: React.FC<WeekCalendarScreenProps> = ({
               selectedDayTextColor: "white",
               dayTextColor: "white",
               todayBackgroundColor: "#c997087a",
-              todayTextColor: "white",
+              // todayTextColor: "white",
             }}
             calendarWidth={calendarWidth}
             staticHeader={true}
