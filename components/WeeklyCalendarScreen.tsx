@@ -1,45 +1,87 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, LayoutChangeEvent } from "react-native";
+import {
+  CalendarProvider,
+  WeekCalendar,
+  DateData,
+} from "react-native-calendars";
 import dayjs from "dayjs";
-import { CalendarProvider, WeekCalendar } from "react-native-calendars";
 
-const WeekCalendarScreen = () => {
-  const [selectedDate, setSelectedDate] = useState(
-    dayjs().format("YYYY-MM-DD")
+interface WeekCalendarScreenProps {
+  selectedDate: dayjs.Dayjs;
+  setSelectedDate: (date: dayjs.Dayjs) => void;
+}
+
+const today = dayjs();
+
+const WeekCalendarScreen: React.FC<WeekCalendarScreenProps> = ({
+  selectedDate,
+  setSelectedDate,
+}) => {
+  const [calendarWidth, setCalendarWidth] = useState<number | null>(null);
+  const [currentMonthYear, setCurrentMonthYear] = useState<string>(
+    selectedDate.format("MMMM YYYY")
   );
 
-  // Handler for date selection
-  const handleDateChange = (date: string) => {
-    setSelectedDate(date);
+  const onLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setCalendarWidth(width);
+  };
+
+  // Handle month change when the week is displayed
+  const handleMonthChange = (date: DateData) => {
+    const monthYear = dayjs(date.dateString).format("MMMM YYYY");
+    setCurrentMonthYear(monthYear);
   };
 
   return (
-    <CalendarProvider date={selectedDate} showTodayButton={false}>
-      <View>
-        <WeekCalendar
-          firstDay={0} // 0 = Sunday, 1 = Monday
-          onDayPress={(day) => handleDateChange(day.dateString)}
-          markedDates={
-            selectedDate
-              ? {
-                  [selectedDate]: {
-                    selected: true,
-                    selectedColor: "#c99708",
-                  },
-                }
-              : {}
-          }
-          theme={{
-            calendarBackground: "transparent", // Make calendar background transparent
-            selectedDayBackgroundColor: "transparent",
-            selectedDayTextColor: "white",
-            dayTextColor: "white",
-            todayTextColor: "white",
-          }}
-          // disableAllTouchEventsForDisabledDays={true}
-        />
+    <CalendarProvider
+      date={selectedDate.format("YYYY-MM-DD")} // Convert dayjs to string for CalendarProvider
+      onMonthChange={handleMonthChange}
+      showTodayButton={false}
+    >
+      {/* Title displaying the month and year */}
+      <View className="flex items-start mx-4 mt-4 mb-1">
+        <Text className="text-textPrimaryDark text-xl font-medium">
+          {currentMonthYear}
+        </Text>
       </View>
-      <Text className="text-white">{selectedDate}</Text>
+
+      {/* Parent View with margin; onLayout dynamically adjusts the width */}
+      <View onLayout={onLayout}>
+        {calendarWidth && (
+          <WeekCalendar
+            firstDay={1}
+            onDayPress={(day) => setSelectedDate(dayjs(day.dateString))} // Fix dayjs conversion
+            markedDates={{
+              [selectedDate.format("YYYY-MM-DD")]: {
+                selected: true,
+                selectedColor: "#c99708",
+              },
+              ...(today.isSame(selectedDate, "day")
+                ? {}
+                : {
+                    [today.format("YYYY-MM-DD")]: {
+                      selected: true,
+                      selectedColor: "#c997087a", // Adjusted to use "selectedColor" for consistency
+                    },
+                  }),
+            }}
+            theme={{
+              calendarBackground: "transparent",
+              selectedDayBackgroundColor: "transparent",
+              selectedDayTextColor: "white",
+              dayTextColor: "white",
+              todayBackgroundColor: "#c997087a",
+              // todayTextColor: "white",
+            }}
+            calendarWidth={calendarWidth}
+            staticHeader={true}
+            pagingEnabled={false}
+            showScrollIndicator={false}
+          />
+        )}
+      </View>
     </CalendarProvider>
   );
 };

@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatTextInput from "@/components/ChatTextInput";
 import ConversationsRow from "@/components/ConversationsRow";
+import ProfileHeaderRow from "@/components/ProfileHeaderRow";
 import { Ionicons } from "@expo/vector-icons";
 
 const DATA = [
@@ -75,13 +76,14 @@ export default function Chat() {
       className="flex-1 bg-darkBackground"
     >
       <View
-        className="flex-1 mt-4 bg-darkBackground"
+        className="flex-1 bg-darkBackground"
         style={{ paddingTop: insets.top }}
       >
         <ScrollView className="flex-grow">
+          <ProfileHeaderRow />
           {/* Header row for scroll view */}
-          <View className="flex-row justify-between items-center mx-4">
-            <Text className="text-xl font-semibold text-textPrimaryDark">
+          <View className="flex-row justify-between items-center mx-5 mb-2">
+            <Text className="text-textPrimaryDark text-2xl font-semibold">
               Recent Chats
             </Text>
             <Text className="text-medium text-lg underline text-textSecondaryDark">
@@ -89,11 +91,11 @@ export default function Chat() {
             </Text>
           </View>
           {/* Horizontal ScrollView */}
-          <ConversationsRow extraClassNames="my-4" data={DATA} />
+          <ConversationsRow data={DATA} />
           {/* Predefined Chats List */}
           <View className="mx-4 my-6">
             {/* Title for Suggested Topics */}
-            <Text className="text-xl font-semibold text-textPrimaryDark mb-4">
+            <Text className="text-textPrimaryDark text-2xl font-semibold mb-4">
               Suggested Topics
             </Text>
 

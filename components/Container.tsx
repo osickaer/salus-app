@@ -17,8 +17,11 @@ const Container: React.FC<ContainerProps> = ({
   return (
     <View
       className={`${
-        flex ? "flex-1" : ""
-      } ${padding} bg-darkContainer rounded-md ${extraClassNames || ""}`}
+        flex ? "flex-1" : "flex"
+      } ${padding} bg-darkContainer rounded-md shadow-xl mb-4 ${
+        extraClassNames || ""
+      }`}
+      style={{ elevation: 10 }} // Increase elevation for Android
     >
       {children}
     </View>

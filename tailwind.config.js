@@ -14,9 +14,13 @@ module.exports = {
         darkBackground: "#0E0E0E", // for dark mode (default rn)
         lightBackground: "#ffffff", // for light mode
         secondaryBackground: "#2C2C2C", // slightly lighter gray
+        darkModalBackground: "#232323", // background for modal screens
         darkContainer: "#202020", // for all containers/views
         accent1: "#2b2d42", // Dark slate
         accent2: "#008080", // Teal
+        protein: "#d55a5a", // pastel red
+        carbs: "#e8b923", // pastel yellow
+        fat: "#3aafa9", // pastel blue
 
         // Text colors for dark and light mode
         textPrimaryDark: "#f5f5f5", // Light text for dark mode
