@@ -17,7 +17,7 @@ const Container: React.FC<ContainerProps> = ({
   return (
     <View
       className={`${
-        flex ? "flex-1" : ""
+        flex ? "flex-1" : "flex"
       } ${padding} bg-darkContainer rounded-md shadow-xl mb-4 ${
         extraClassNames || ""
       }`}
