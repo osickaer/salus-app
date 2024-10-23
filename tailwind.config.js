@@ -14,8 +14,11 @@ module.exports = {
         darkBackground: "#0E0E0E", // for dark mode (default rn)
         lightBackground: "#ffffff", // for light mode
         secondaryBackground: "#2C2C2C", // slightly lighter gray
-        darkModalBackground: "#232323", // background for modal screens
+        tertiaryBackground: "#3a3a3a", // slightly lighter gray
+        darkModalBackground: "#202122", // background for modal screens
         darkContainer: "#202020", // for all containers/views
+        darkTertiaryButton: "#3a3a3a",
+        darkSecondaryContainer: "#737373",
         accent1: "#2b2d42", // Dark slate
         accent2: "#008080", // Teal
         protein: "#d55a5a", // pastel red
@@ -52,8 +55,8 @@ module.exports = {
         8: "32px",
       },
       borderRadius: {
-        sm: "8px",
-        md: "12px",
+        sm: "4px",
+        md: "8px",
         lg: "16px",
         xl: "32px",
         full: "9999px",

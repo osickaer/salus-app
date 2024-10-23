@@ -30,11 +30,12 @@ export default function LoggingPage() {
   const router = useRouter();
 
   return (
-    <View
-      className="flex-1 bg-darkBackground"
-      style={{ paddingTop: insets.top }}
-    >
-      <ScrollView className="flex-grow" showsVerticalScrollIndicator={false}>
+    <View className="flex-1 bg-darkBackground">
+      <ScrollView
+        style={{ paddingTop: insets.top }}
+        className="flex-grow"
+        showsVerticalScrollIndicator={false}
+      >
         <ProfileHeaderRow />
         <Text className="text-textPrimaryDark text-2xl font-semibold mx-5 mb-2">
           Workout Schedule
@@ -72,7 +73,7 @@ export default function LoggingPage() {
         <View className="space-y-4">
           <TouchableOpacity
             onPress={() => router.push("/log/logMeal")}
-            className="bg-transparent mx-4 p-3 rounded-md border-[0.5px] border-primary"
+            className="bg-transparent mx-4 p-3 rounded-md border-[0.5px] border-primary/60"
           >
             <View className="flex-row justify-center">
               <Ionicons
@@ -88,7 +89,7 @@ export default function LoggingPage() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => router.push("/log/logWorkout")}
-            className="bg-transparent mx-4 p-3 rounded-md border-[0.5px] border-primary"
+            className="bg-transparent mx-4 p-3 rounded-md border-[0.5px] border-primary/60"
           >
             <View className="flex-row justify-center">
               <Ionicons
@@ -104,7 +105,7 @@ export default function LoggingPage() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => router.push("/log/logWeight")}
-            className="bg-transparent mx-4 p-3 rounded-md border-[0.5px] border-primary"
+            className="bg-transparent mx-4 p-3 rounded-md border-[0.5px] border-primary/60"
           >
             <View className="flex-row justify-center">
               <Ionicons
