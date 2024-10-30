@@ -4,28 +4,26 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   TouchableOpacity,
-  Platform,
   Modal,
+  Platform,
+  StyleSheet,
+  Button,
 } from "react-native";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import dayjs from "dayjs";
 import Container from "@/components/Container";
 import { Ionicons } from "@expo/vector-icons";
 
 type IconNames = React.ComponentProps<typeof Ionicons>["name"];
-import DragIndicator from "@/components/DragIndicator";
 
 export default function LogMeal() {
   const router = useRouter();
   const [meal, setMeal] = useState("");
   const [mealType, setMealType] = useState("");
   const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [show, setShow] = useState(false);
 
   const mealTypes = [
     { id: "breakfast", icon: "sunny" as IconNames, label: "Breakfast" },
@@ -34,14 +32,7 @@ export default function LogMeal() {
     { id: "snack", icon: "nutrition" as IconNames, label: "Snack" },
   ];
 
-  const handleSaveMeal = () => {
-    // Handle saving meal logic here
-    console.log("Meal logged:", meal);
-    router.back(); // Navigate back to the previous page
-  };
-
-  const onChangeDate = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === "ios"); // Keep it open for iOS until closed manually
+  const handleDateChange = (event: any, selectedDate?: Date) => {
     if (selectedDate) {
       setDate(selectedDate);
     }
@@ -49,7 +40,6 @@ export default function LogMeal() {
 
   return (
     <View className="flex-1 px-4 bg-darkModalBackground">
-      {/* <DragIndicator /> */}
       <View className="w-full flex-row justify-between items-center py-4">
         <Text
           onPress={() => router.back()}
@@ -61,7 +51,13 @@ export default function LogMeal() {
           Log Meal
         </Text>
         <Text
-          onPress={handleSaveMeal}
+          onPress={() =>
+            console.log(
+              "Meal logged:",
+              meal,
+              dayjs(date).format("MMMM D, YYYY")
+            )
+          }
           className="flex-1 text-lg text-primary font-medium text-right underline"
         >
           Save
@@ -70,42 +66,37 @@ export default function LogMeal() {
 
       <Container extraClassNames="bg-tertiaryBackground justify-center">
         <View className="flex-row justify-between">
-          <Text className="text-base text-textPrimaryDark font-normal">
-            {dayjs().format("MMMM D, YYYY")}
-          </Text>
-          {/* <Ionicons
-            color="#888888"
-            name="pencil"
-            size={20}
-            style={{ marginLeft: 0.5 }}
-          /> */}
-          <Text
-            onPress={() => setShowDatePicker(true)}
-            className="text-base text-textMutedDark font-normal underline"
-          >
-            Select
-          </Text>
-        </View>
-      </Container>
-
-      {showDatePicker && (
-        <Modal transparent={true} animationType="slide">
-          <View className="flex-1 justify-center items-center bg-black/50">
-            <View className="bg-white rounded-lg p-4">
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display={Platform.OS === "ios" ? "inline" : "default"}
-                onChange={onChangeDate}
-                maximumDate={new Date()} // Prevent selecting future dates
-              />
-              {Platform.OS === "ios" && (
-                <Button title="Done" onPress={() => setShowDatePicker(false)} />
-              )}
-            </View>
+          <View className="flex-row items-center">
+            <Ionicons name="calendar" size={24} color="#c99708" />
+            <Text
+              onPress={() => setShow(!show)}
+              className="text-base text-textPrimaryDark font-normal ml-2 mt-[2px]"
+            >
+              {dayjs(date).format("MMMM D, YYYY")}
+            </Text>
           </View>
-        </Modal>
-      )}
+
+          <TouchableOpacity onPress={() => setShow(!show)}>
+            <Text className="text-base text-textMutedDark font-normal underline">
+              Change
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Inline Expanding Calendar */}
+        {show && (
+          <View>
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode="date"
+              display="inline" // Use 'inline' display for a calendar-like UI
+              onChange={handleDateChange}
+              maximumDate={new Date()} // Prevent future dates
+            />
+          </View>
+        )}
+      </Container>
 
       <Container extraClassNames="bg-tertiaryBackground">
         <View className="flex-row justify-between space-x-2">
@@ -141,14 +132,13 @@ export default function LogMeal() {
           ))}
         </View>
       </Container>
+
       <TextInput
         placeholder="Enter your meal details"
         placeholderTextColor="#888"
         className="bg-tertiaryBackground text-textPrimaryDark text-base text-start rounded-md px-4 p-4 min-h-[92px]"
-        style={{
-          lineHeight: 20,
-        }}
-        multiline={true}
+        style={{ lineHeight: 20 }}
+        multiline
         numberOfLines={2}
         value={meal}
         onChangeText={setMeal}
