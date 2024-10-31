@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  StyleSheet,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import dayjs from "dayjs";
 import ProfileHeaderRow from "@/components/ProfileHeaderRow";
-import LogInputField from "@/components/LogInputField"; // Reusable input component
-import LogButton from "@/components/LogButton"; // Reusable button component
-import LogItemCard from "@/components/LogItemCard"; // Reusable log card component
-import Container from "@/components/Container"; // Existing container component
+import Container from "@/components/Container";
 import WorkoutScheduleItem from "@/components/WorkoutScheduleItem";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -28,6 +32,12 @@ const workout_schedule_data = [
 export default function LoggingPage() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const [isWorkoutModalVisible, setIsWorkoutModalVisible] = useState(false);
+
+  const handleWorkoutChoice = (choice: string) => {
+    console.log(`Workout chosen: ${choice}`);
+    setIsWorkoutModalVisible(false); // Close the modal
+  };
 
   return (
     <View className="flex-1 bg-darkBackground">
@@ -87,8 +97,10 @@ export default function LoggingPage() {
               </Text>
             </View>
           </TouchableOpacity>
+
+          {/* Log Workout Button with Modal Trigger */}
           <TouchableOpacity
-            onPress={() => router.push("/log/logWorkout")}
+            onPress={() => setIsWorkoutModalVisible(true)}
             className="bg-transparent mx-4 p-3 rounded-md border-[0.5px] border-primary/60"
           >
             <View className="flex-row justify-center">
@@ -103,6 +115,7 @@ export default function LoggingPage() {
               </Text>
             </View>
           </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => router.push("/log/logWeight")}
             className="bg-transparent mx-4 p-3 rounded-md border-[0.5px] border-primary/60"
@@ -121,6 +134,49 @@ export default function LoggingPage() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Workout Choice Modal */}
+      <Modal
+        visible={isWorkoutModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsWorkoutModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/60">
+          <View className="w-4/5 bg-darkModalBackground rounded-lg p-6 items-center">
+            <Text className="text-lg text-textPrimaryDark font-bold mb-4">
+              Select Workout Type
+            </Text>
+
+            <TouchableOpacity
+              className="w-full py-3 bg-yellow-600 rounded-md mb-4"
+              onPress={() => router.push("/log/logStrengthWorkout")}
+            >
+              <Text className="text-white text-center text-base font-semibold">
+                Strength
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="w-full py-3 bg-yellow-600 rounded-md mb-4"
+              onPress={() => router.push("/log/logCardioWorkout")}
+            >
+              <Text className="text-white text-center text-base font-semibold">
+                Cardio
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="mt-2"
+              onPress={() => setIsWorkoutModalVisible(false)}
+            >
+              <Text className="text-red-600 text-base font-semibold">
+                Cancel
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
