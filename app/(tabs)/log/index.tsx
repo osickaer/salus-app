@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-} from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Modal } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import dayjs from "dayjs";
@@ -29,14 +22,17 @@ const workout_schedule_data = [
   },
 ];
 
+type RoutePaths = "/log/logStrengthWorkout" | "/log/logCardioWorkout" | null;
+
 export default function LoggingPage() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [isWorkoutModalVisible, setIsWorkoutModalVisible] = useState(false);
+  const [nextRoute, setNextRoute] = useState<RoutePaths>(null);
 
-  const handleWorkoutChoice = (choice: string) => {
-    console.log(`Workout chosen: ${choice}`);
-    setIsWorkoutModalVisible(false); // Close the modal
+  const handleNavigate = (route: RoutePaths) => {
+    setNextRoute(route);
+    setIsWorkoutModalVisible(false);
   };
 
   return (
@@ -134,13 +130,18 @@ export default function LoggingPage() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
       {/* Workout Choice Modal */}
       <Modal
         visible={isWorkoutModalVisible}
         transparent
         animationType="fade"
         onRequestClose={() => setIsWorkoutModalVisible(false)}
+        onDismiss={() => {
+          if (nextRoute) {
+            router.push(nextRoute); // Navigate to the next route after modal closes
+            setNextRoute(null); // Reset the next route
+          }
+        }}
       >
         <View className="flex-1 justify-center items-center bg-black/60">
           <View className="w-4/5 bg-darkModalBackground rounded-lg p-6 items-center">
@@ -150,7 +151,7 @@ export default function LoggingPage() {
 
             <TouchableOpacity
               className="w-full py-3 bg-yellow-600 rounded-md mb-4"
-              onPress={() => router.push("/log/logStrengthWorkout")}
+              onPress={() => handleNavigate("/log/logStrengthWorkout")}
             >
               <Text className="text-white text-center text-base font-semibold">
                 Strength
@@ -159,7 +160,7 @@ export default function LoggingPage() {
 
             <TouchableOpacity
               className="w-full py-3 bg-yellow-600 rounded-md mb-4"
-              onPress={() => router.push("/log/logCardioWorkout")}
+              onPress={() => handleNavigate("/log/logCardioWorkout")}
             >
               <Text className="text-white text-center text-base font-semibold">
                 Cardio
