@@ -1,20 +1,20 @@
-// app/(tabs)/log/meal.tsx
 import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  Modal,
   Platform,
-  StyleSheet,
-  Button,
+  KeyboardAvoidingView,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useRouter } from "expo-router";
 import dayjs from "dayjs";
-import Container from "@/components/Container";
+import Container from "@/components/layout/Container";
 import { Ionicons } from "@expo/vector-icons";
+import ModalHeader from "@/components/layout/ModalHeader";
+import CalendarPicker from "@/components/calendars/CalendarPicker";
+import AccessoryTextInput from "@/components/inputs/AccessoryTextInput";
 
 type IconNames = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -30,119 +30,133 @@ export default function LogMeal() {
     { id: "lunch", icon: "restaurant" as IconNames, label: "Lunch" },
     { id: "dinner", icon: "moon" as IconNames, label: "Dinner" },
     { id: "snack", icon: "nutrition" as IconNames, label: "Snack" },
+    { id: "water", icon: "water" as IconNames, label: "Water" },
   ];
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
+  const topRowMealTypes = mealTypes.slice(0, 3); // First three items
+  const bottomRowMealTypes = mealTypes.slice(3); // Last two items
+
+  const handleCancel = () => {
+    console.log("Action cancelled");
+    router.back();
+  };
+
+  const handleSave = () => {
+    console.log("Meal logged:", meal, dayjs(date).format("MMMM D, YYYY"));
+    router.back();
   };
 
   return (
-    <View className="flex-1 px-4 bg-darkModalBackground">
-      <View className="w-full flex-row justify-between items-center py-4">
-        <Text
-          onPress={() => router.back()}
-          className="flex-1 text-lg text-secondary font-medium text-left underline"
-        >
-          Cancel
-        </Text>
-        <Text className="flex-1 text-xl text-textPrimaryDark font-bold text-center">
-          Log Meal
-        </Text>
-        <Text
-          onPress={() =>
-            console.log(
-              "Meal logged:",
-              meal,
-              dayjs(date).format("MMMM D, YYYY")
-            )
-          }
-          className="flex-1 text-lg text-primary font-medium text-right underline"
-        >
-          Save
-        </Text>
-      </View>
+    <View className="flex-1 bg-darkModalBackground">
+      {/* Fixed Header */}
+      <ModalHeader
+        title="Log Meal"
+        onCancel={handleCancel}
+        onSave={handleSave}
+        cancelText="Back"
+        saveText="Save"
+      />
 
-      <Container extraClassNames="bg-tertiaryBackground justify-center">
-        <View className="flex-row justify-between">
-          <View className="flex-row items-center">
-            <Ionicons name="calendar" size={24} color="#c99708" />
-            <Text
-              onPress={() => setShow(!show)}
-              className="text-base text-textPrimaryDark font-normal ml-2 mt-[2px]"
-            >
-              {dayjs(date).format("MMMM D, YYYY")}
-            </Text>
-          </View>
+      {/* Scrollable Content */}
+      <KeyboardAwareScrollView
+        className="px-4"
+        contentContainerStyle={{ paddingBottom: 160 }}
+        enableOnAndroid={true}
+      >
+        <Container extraClassNames="bg-tertiaryBackground justify-center">
+          <CalendarPicker
+            date={date}
+            show={show}
+            setShow={setShow}
+            onDateChange={(e, selectedDate) => {
+              if (selectedDate) setDate(selectedDate);
+            }}
+          />
+        </Container>
 
-          <TouchableOpacity onPress={() => setShow(!show)}>
-            <Text className="text-base text-textMutedDark font-normal underline">
-              Change
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Inline Expanding Calendar */}
-        {show && (
-          <View>
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode="date"
-              display="inline" // Use 'inline' display for a calendar-like UI
-              onChange={handleDateChange}
-              maximumDate={new Date()} // Prevent future dates
-            />
-          </View>
-        )}
-      </Container>
-
-      <Container extraClassNames="bg-tertiaryBackground">
-        <View className="flex-row justify-between space-x-2">
-          {mealTypes.map((type) => (
-            <TouchableOpacity
-              key={type.id}
-              onPress={() => setMealType(type.id)}
-              className={`flex-1 py-3 px-2 rounded-md flex items-center justify-center ${
-                mealType === type.id
-                  ? "bg-primary/20 border border-primary"
-                  : "border border-textMutedDark/30"
-              }`}
-            >
-              <Ionicons
-                name={
+        <Container extraClassNames="bg-tertiaryBackground">
+          {/* Top row with 3 buttons */}
+          <View className="flex-row justify-between space-x-2 mb-2">
+            {topRowMealTypes.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                onPress={() => setMealType(type.id)}
+                className={`flex-1 py-3 px-2 rounded-md flex items-center justify-center ${
                   mealType === type.id
-                    ? type.icon
-                    : ((type.icon + "-outline") as IconNames)
-                }
-                size={20}
-                color={mealType === type.id ? "#c99708" : "#888888"}
-              />
-              <Text
-                className={`text-sm mt-1 ${
-                  mealType === type.id
-                    ? "text-primary font-medium"
-                    : "text-textMutedDark"
+                    ? "bg-primary/20 border border-primary"
+                    : "border border-textMutedDark/30"
                 }`}
               >
-                {type.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </Container>
+                <Ionicons
+                  name={
+                    mealType === type.id
+                      ? type.icon
+                      : ((type.icon + "-outline") as IconNames)
+                  }
+                  size={20}
+                  color={mealType === type.id ? "#c99708" : "#888888"}
+                />
+                <Text
+                  className={`text-sm mt-1 ${
+                    mealType === type.id
+                      ? "text-primary font-medium"
+                      : "text-textMutedDark"
+                  }`}
+                >
+                  {type.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-      <TextInput
-        placeholder="Enter your meal details"
-        placeholderTextColor="#888"
-        className="bg-tertiaryBackground text-textPrimaryDark text-base text-start rounded-md px-4 p-4 min-h-[92px]"
-        style={{ lineHeight: 20 }}
-        multiline
-        numberOfLines={2}
-        value={meal}
-        onChangeText={setMeal}
-      />
+          {/* Bottom row with 2 buttons */}
+          <View className="flex-row justify-between space-x-2">
+            {bottomRowMealTypes.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                onPress={() => setMealType(type.id)}
+                className={`flex-1 py-3 px-2 rounded-md flex items-center justify-center ${
+                  mealType === type.id
+                    ? "bg-primary/20 border border-primary"
+                    : "border border-textMutedDark/30"
+                }`}
+              >
+                <Ionicons
+                  name={
+                    mealType === type.id
+                      ? type.icon
+                      : ((type.icon + "-outline") as IconNames)
+                  }
+                  size={20}
+                  color={mealType === type.id ? "#c99708" : "#888888"}
+                />
+                <Text
+                  className={`text-sm mt-1 ${
+                    mealType === type.id
+                      ? "text-primary font-medium"
+                      : "text-textMutedDark"
+                  }`}
+                >
+                  {type.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Container>
+
+        <AccessoryTextInput>
+          <TextInput
+            placeholder="Enter your meal details"
+            placeholderTextColor="#888"
+            className="bg-tertiaryBackground text-textPrimaryDark text-base text-start rounded-md px-4 p-4 min-h-[92px]"
+            style={{ lineHeight: 20 }}
+            multiline
+            numberOfLines={2}
+            value={meal}
+            onChangeText={setMeal}
+          />
+        </AccessoryTextInput>
+      </KeyboardAwareScrollView>
     </View>
   );
 }

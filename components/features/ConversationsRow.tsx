@@ -1,5 +1,5 @@
 import { View, Text, ScrollView } from "react-native";
-import Container from "./Container";
+import Container from "../layout/Container";
 
 type ItemProps = {
   id: string;

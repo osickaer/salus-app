@@ -3,9 +3,9 @@ import { View, Text, ScrollView, TouchableOpacity, Modal } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import dayjs from "dayjs";
-import ProfileHeaderRow from "@/components/ProfileHeaderRow";
-import Container from "@/components/Container";
-import WorkoutScheduleItem from "@/components/WorkoutScheduleItem";
+import ProfileHeaderRow from "@/components/layout/ProfileHeaderRow";
+import Container from "@/components/layout/Container";
+import WorkoutScheduleItem from "@/components/features/WorkoutScheduleItem";
 import { Ionicons } from "@expo/vector-icons";
 
 const workout_schedule_data = [

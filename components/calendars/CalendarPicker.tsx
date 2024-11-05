@@ -25,7 +25,7 @@ export default function CalendarPicker({
           <Ionicons name="calendar" size={24} color="#737373" />
           <Text
             onPress={() => setShow(!show)}
-            className="text-base text-textPrimaryDark font-base ml-4"
+            className="text-base text-textPrimaryDark font-base ml-2"
           >
             {dayjs(date).format("MMMM D, YYYY")}
           </Text>
