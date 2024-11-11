@@ -35,6 +35,14 @@ export default function LogLayout() {
         }}
       />
       <Stack.Screen
+        name="exerciseSearch"
+        options={{
+          headerShown: false,
+          presentation: "modal",
+          title: "Exercise Search",
+        }}
+      />
+      <Stack.Screen
         name="logWeight"
         options={{
           headerShown: false,

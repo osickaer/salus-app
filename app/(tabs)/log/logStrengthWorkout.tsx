@@ -1,6 +1,12 @@
 // app/(tabs)/log/workout.tsx
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { useRouter } from "expo-router";
 import Container from "@/components/layout/Container";
 import CalendarPicker from "@/components/calendars/CalendarPicker";
@@ -152,6 +158,25 @@ export default function LogWorkout() {
             ))}
           </Container>
         ))}
+
+        <Pressable
+          onPress={() => {
+            router.push("/log/exerciseSearch");
+          }}
+          className="flex-row justify-center items-center h-[225px] w-full border-[1px] rounded-md border-darkSecondaryContainer/75"
+        >
+          <TouchableOpacity className="w-[28px] h-[28px] bg-darkSecondaryContainer rounded-full flex items-center justify-center">
+            <Ionicons
+              color="#202122"
+              name="add"
+              size={20}
+              style={{ marginLeft: 0.5 }}
+            />
+          </TouchableOpacity>
+          <Text className="text-darkSecondaryContainer text-lg font-normal ml-2">
+            Add exercise
+          </Text>
+        </Pressable>
       </KeyboardAwareScrollView>
     </View>
   );
