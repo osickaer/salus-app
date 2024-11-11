@@ -19,11 +19,27 @@ export default function LogLayout() {
         }}
       />
       <Stack.Screen
-        name="logWorkout"
+        name="logStrengthWorkout"
         options={{
           headerShown: false,
           presentation: "modal",
-          title: "Log Workout",
+          title: "Log Strength Workout",
+        }}
+      />
+      <Stack.Screen
+        name="logCardioWorkout"
+        options={{
+          headerShown: false,
+          presentation: "modal",
+          title: "Log Cardio Workout",
+        }}
+      />
+      <Stack.Screen
+        name="exerciseSearch"
+        options={{
+          headerShown: false,
+          presentation: "modal",
+          title: "Exercise Search",
         }}
       />
       <Stack.Screen

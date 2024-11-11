@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import { Stack, Tabs } from "expo-router";
 import { supabase } from "../lib/supabase";
-import Auth from "../components/Auth"; // Your Auth component
+import Auth from "../components/auth/Auth"; // Your Auth component
 import * as SplashScreen from "expo-splash-screen";
 import { Session } from "@supabase/supabase-js";
 

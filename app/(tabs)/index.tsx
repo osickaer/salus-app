@@ -10,9 +10,9 @@ import {
 import { supabase } from "../../lib/supabase";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ChatTextInput from "@/components/ChatTextInput";
-import ConversationsRow from "@/components/ConversationsRow";
-import ProfileHeaderRow from "@/components/ProfileHeaderRow";
+import ChatTextInput from "@/components/inputs/ChatTextInput";
+import ConversationsRow from "@/components/features/ConversationsRow";
+import ProfileHeaderRow from "@/components/layout/ProfileHeaderRow";
 import { Ionicons } from "@expo/vector-icons";
 
 const DATA = [

@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ProfileHeaderRow from "@/components/ProfileHeaderRow";
+import ProfileHeaderRow from "@/components/layout/ProfileHeaderRow";
 import dayjs from "dayjs";
-import Container from "@/components/Container";
-import WeekCalendarScreen from "@/components/WeeklyCalendarScreen";
-import CalorieGraph from "@/components/CalorieGraph";
-import ProgressBar from "@/components/ProgressBar";
+import Container from "@/components/layout/Container";
+import WeekCalendarScreen from "@/components/calendars/WeeklyCalendarScreen";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import CalorieGraph from "@/components/graphs/CalorieGraph";
+import ProgressBar from "@/components/graphs/ProgressBar";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import TileButton from "@/components/TileButton";
+import TileButton from "@/components/buttons/TileButton";
 
 // Dummy data for the charts
 const proteinGrams = 40;
@@ -38,7 +39,11 @@ export default function History() {
       className="flex-1 bg-darkBackground"
       style={{ paddingTop: insets.top }}
     >
-      <ScrollView className="flex-grow" showsVerticalScrollIndicator={false}>
+      <KeyboardAwareScrollView
+        className="flex-grow"
+        enableOnAndroid={true}
+        contentContainerStyle={{ paddingBottom: 160 }}
+      >
         <ProfileHeaderRow />
         <Text className="text-textPrimaryDark font-bold text-2xl mx-5 mb-2 ">
           History
@@ -123,7 +128,7 @@ export default function History() {
             </Text>
           </TileButton>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
