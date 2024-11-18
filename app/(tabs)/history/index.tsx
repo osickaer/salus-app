@@ -110,19 +110,19 @@ export default function History() {
               Meals
             </Text>
           </TileButton>
-          <TileButton>
+          <TileButton onPress={() => router.push("/history/savedMeals")}>
             <Ionicons color="#f5f5f5" name="bookmark" size={32} />
             <Text className="mt-4 text-textPrimaryDark text-lg font-normal">
               Saved Meals
             </Text>
           </TileButton>
-          <TileButton>
+          <TileButton onPress={() => router.push("/history/workoutHistory")}>
             <Ionicons color="#f5f5f5" name="barbell" size={32} />
             <Text className="mt-4 text-textPrimaryDark text-lg font-normal">
               Workouts
             </Text>
           </TileButton>
-          <TileButton>
+          <TileButton onPress={() => router.push("/history/savedWorkouts")}>
             <Ionicons color="#f5f5f5" name="save" size={32} />
             <Text className="mt-4 text-textPrimaryDark text-lg font-normal">
               Saved Workouts

@@ -13,26 +13,35 @@ const WorkoutScheduleItem: React.FC<WorkoutScheduleItemProps> = ({
 }) => {
   return (
     <View className="flex-row justify-between items-center">
-      <View className="flex-row">
-        <View className="flex-col justify-center">
-          <View className="bg-primary/50 w-1 min-h-[32px] flex-1 rounded-full" />
+      <View className="flex-row flex-1">
+        <View className="justify-center">
+          <View className="bg-primary/50 w-1 min-h-[32px] rounded-full" />
         </View>
-        <View className="flex-col justify-center mx-2">
+        <View className="justify-center mx-2 flex-shrink">
           <Text
             style={{ lineHeight: 20 }}
             className="text-textSecondaryDark text-lg font-medium"
+            numberOfLines={1} // Ensures title truncates if too long
+            ellipsizeMode="tail"
           >
             {title}
           </Text>
           <Text
-            style={{ lineHeight: 0 }}
+            style={{ lineHeight: 20 }}
             className="text-textMutedDark text-md font-normal mt-1"
+            numberOfLines={1} // Ensures subtitle truncates if too long
+            ellipsizeMode="tail"
           >
             {subtitle}
           </Text>
         </View>
       </View>
-      <Ionicons color="#f5f5f5" name="ellipsis-horizontal" size={20} />
+      <Ionicons
+        color="#f5f5f5"
+        name="ellipsis-horizontal"
+        size={20}
+        style={{ marginLeft: 8 }} // Keeps minimal spacing between text and icon
+      />
     </View>
   );
 };
