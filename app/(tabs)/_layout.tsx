@@ -21,6 +21,12 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          tabBarItemStyle: { display: "none" },
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
           title: "Chat",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
