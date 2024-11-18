@@ -10,6 +10,7 @@ import CalorieGraph from "@/components/graphs/CalorieGraph";
 import ProgressBar from "@/components/graphs/ProgressBar";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TileButton from "@/components/buttons/TileButton";
+import { router } from "expo-router";
 
 // Dummy data for the charts
 const proteinGrams = 40;
@@ -103,7 +104,7 @@ export default function History() {
         </Container>
         <View className="flex-row flex-wrap justify-between mx-4">
           {/* Repeating Container items */}
-          <TileButton>
+          <TileButton onPress={() => router.push("/history/mealHistory")}>
             <Ionicons color="#f5f5f5" name="restaurant" size={32} />
             <Text className="mt-4 text-textPrimaryDark text-lg font-normal">
               Meals
