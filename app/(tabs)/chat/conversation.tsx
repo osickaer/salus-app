@@ -5,9 +5,10 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import ChatTextInput from "@/components/inputs/ChatTextInput";
+import { Ionicons } from "@expo/vector-icons";
 
 type Message = {
   chat_id: number;
@@ -65,41 +66,39 @@ export default function Conversation(): JSX.Element {
         key={item.chat_id}
         className={`flex-row ${
           isUser ? "justify-end" : "justify-start"
-        } items-center my-2`}
+        } items-start my-4`}
       >
-        {/* Icon */}
-        {!isUser && (
-          <Ionicons
-            name="chatbubbles-outline"
-            size={24}
-            color="#c99708"
-            className="mr-2"
-          />
-        )}
-
-        {/* Message Bubble */}
-        <View
-          className={`${
-            isUser ? "bg-primary ml-auto" : "bg-secondary mr-auto"
-          } px-4 py-2 rounded-lg max-w-[80%]`}
-        >
-          <Text
-            className={`text-sm ${
-              isUser ? "text-darkTextPrimary" : "text-lightTextPrimary"
-            }`}
-          >
-            {item.message}
-          </Text>
-        </View>
-
-        {/* Icon for User */}
-        {isUser && (
-          <Ionicons
-            name="person-circle-outline"
-            size={24}
-            color="#b22b2b"
-            className="ml-2"
-          />
+        {/* Message */}
+        {isUser ? (
+          <View className="flex-row items-start max-w-[80%] ml-auto">
+            <View className="bg-primary px-4 py-2 rounded-lg rounded-br-none flex-shrink">
+              <Text className="text-sm text-darkTextPrimary">
+                {item.message}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View className="flex-row items-start flex-1">
+            <Image
+              source={require("@/assets/images/salus-transparent.png")}
+              style={{
+                width: 32,
+                height: 32,
+                marginRight: 8,
+              }}
+            />
+            <View className="flex-1">
+              <Text className="text-lg text-textPrimaryDark font-medium">
+                Salus
+              </Text>
+              <Text
+                className="text-sm text-textPrimaryDark"
+                style={{ flexWrap: "wrap" }}
+              >
+                {item.message}
+              </Text>
+            </View>
+          </View>
         )}
       </View>
     );
@@ -113,7 +112,7 @@ export default function Conversation(): JSX.Element {
     >
       <View className="flex-1 bg-darkBackground">
         {/* Messages */}
-        <ScrollView className="flex-grow">
+        <ScrollView className="p-4 flex-grow">
           {messages.map(renderMessageBubble)}
         </ScrollView>
 

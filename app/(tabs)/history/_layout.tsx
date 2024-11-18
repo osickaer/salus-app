@@ -13,6 +13,7 @@ export default function HistoryLayout() {
       <Stack.Screen
         name="mealHistory"
         options={{
+          headerTitle: "Meal History",
           headerShown: true,
           headerStyle: {
             backgroundColor: "#0E0E0E",
@@ -27,6 +28,45 @@ export default function HistoryLayout() {
         options={{
           headerShown: false,
           presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="savedMeals"
+        options={{
+          headerTitle: "Saved Meals",
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: "#0E0E0E",
+          },
+          headerTitleStyle: {
+            color: "#f5f5f5",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="workoutHistory"
+        options={{
+          headerTitle: "Workout History",
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: "#0E0E0E",
+          },
+          headerTitleStyle: {
+            color: "#f5f5f5",
+          },
+        }}
+      />
+      <Stack.Screen
+        name="savedWorkouts"
+        options={{
+          headerTitle: "Workout History",
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: "#0E0E0E",
+          },
+          headerTitleStyle: {
+            color: "#f5f5f5",
+          },
         }}
       />
     </Stack>
