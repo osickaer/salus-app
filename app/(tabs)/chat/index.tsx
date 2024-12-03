@@ -5,34 +5,14 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Image,
-  Pressable,
 } from "react-native";
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChatTextInput from "@/components/inputs/ChatTextInput";
 import ConversationsRow from "@/components/features/ConversationsRow";
 import ProfileHeaderRow from "@/components/layout/ProfileHeaderRow";
 import { Ionicons } from "@expo/vector-icons";
-
-const DATA = [
-  {
-    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-    title: "First Item",
-    body: "Example of a body text from Supabase",
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-    title: "Second Item",
-    body: "Example of a body text from Supabase",
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d72",
-    title: "Third Item",
-    body: "Example of a body text from Supabase",
-  },
-];
 
 // Predefined chat suggestions
 const predefinedChats = [
@@ -43,17 +23,51 @@ const predefinedChats = [
   "I want to log a meal",
 ];
 
-type ItemProps = { title: string };
-
-const Item = ({ title }: ItemProps) => (
-  <View className="bg-darkContainer p-2 mx-4 my-2">
-    <Text className="text-base">{title}</Text>
-  </View>
-);
-
 export default function Chat() {
   const insets = useSafeAreaInsets();
   const [message, setMessage] = useState("");
+  const [conversations, setConversations] = useState<ChatConversation[]>([]);
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const jwt = await supabase.auth
+          .getSession()
+          .then((res) => res.data.session?.access_token);
+
+        if (!jwt) {
+          console.error("No JWT found, user may not be authenticated");
+          return;
+        }
+
+        console.log(jwt);
+
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/chat/conversations`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${jwt}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch conversations: ${response.statusText}`
+          );
+        }
+
+        const data: ChatConversation[] = await response.json();
+        setConversations(data);
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+      }
+    };
+
+    fetchConversations();
+  }, []);
 
   const handleSend = () => {
     console.log("Message sent:", message); // Log the message or perform any action
@@ -92,7 +106,7 @@ export default function Chat() {
             </Text>
           </View>
           {/* Horizontal ScrollView */}
-          <ConversationsRow data={DATA} />
+          <ConversationsRow data={conversations} />
           {/* Predefined Chats List */}
           <View className="mx-4 my-6">
             {/* Title for Suggested Topics */}

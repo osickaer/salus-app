@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,51 +6,76 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  Alert,
 } from "react-native";
 import ChatTextInput from "@/components/inputs/ChatTextInput";
+import { useLocalSearchParams } from "expo-router";
+import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
+import Markdown from "react-native-markdown-display";
 
 type Message = {
-  chat_id: number;
+  chatId: string;
   role: "user" | "assistant";
   message: string;
 };
 
-const initialMessages: Message[] = [
-  {
-    chat_id: 301,
-    role: "user",
-    message:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi finibus tortor volutpat quam ultrices, eu sollicitudin risus accumsan. Donec convallis bibendum lorem, a faucibus odio.",
-  },
-  {
-    chat_id: 302,
-    role: "assistant",
-    message:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi finibus tortor volutpat quam ultrices, eu sollicitudin risus accumsan. Donec convallis bibendum lorem, a faucibus odio.",
-  },
-  {
-    chat_id: 303,
-    role: "user",
-    message:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi finibus tortor volutpat quam ultrices, eu sollicitudin risus accumsan. Donec convallis bibendum lorem, a faucibus odio.",
-  },
-  {
-    chat_id: 304,
-    role: "assistant",
-    message:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi finibus tortor volutpat quam ultrices, eu sollicitudin risus accumsan. Donec convallis bibendum lorem, a faucibus odio.",
-  },
-];
-
 export default function Conversation(): JSX.Element {
+  const { conversationId } = useLocalSearchParams(); // Extract conversationId from route params
   const [message, setMessage] = useState<string>(""); // State for input message
-  const [messages, setMessages] = useState<Message[]>(initialMessages); // State for all messages
+  const [messages, setMessages] = useState<Message[]>([]); // State for all messages
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!conversationId) {
+        Alert.alert("Error", "Conversation ID is missing.");
+        return;
+      }
+
+      try {
+        const jwt = await supabase.auth
+          .getSession()
+          .then((res) => res.data.session?.access_token);
+
+        if (!jwt) {
+          console.error("No JWT found, user may not be authenticated");
+          return;
+        }
+        const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/chat/conversations/${conversationId}/chatMessages`;
+
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch messages: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const formattedMessages = data.map((msg: any) => ({
+          chatId: msg.chatId,
+          role: msg.role,
+          message: msg.message,
+        }));
+
+        setMessages(formattedMessages);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+        Alert.alert("Error", "Failed to load chat messages.");
+      }
+    };
+
+    fetchMessages();
+  }, [conversationId]);
 
   const handleSend = (): void => {
     if (message.trim()) {
       const newMessage: Message = {
-        chat_id: Date.now(), // Use timestamp as unique ID
+        chatId: Date.now().toString(), // Use timestamp as unique ID
         role: "user",
         message,
       };
@@ -63,7 +88,7 @@ export default function Conversation(): JSX.Element {
     const isUser = item.role === "user";
     return (
       <View
-        key={item.chat_id}
+        key={item.chatId}
         className={`flex-row ${
           isUser ? "justify-end" : "justify-start"
         } items-start my-4`}
@@ -71,8 +96,8 @@ export default function Conversation(): JSX.Element {
         {/* Message */}
         {isUser ? (
           <View className="flex-row items-start max-w-[80%] ml-auto">
-            <View className="bg-primary px-4 py-2 rounded-lg rounded-br-none flex-shrink">
-              <Text className="text-sm text-darkTextPrimary">
+            <View className="bg-[#ba8c08] px-4 py-2 rounded-lg rounded-br-none flex-shrink">
+              <Text className="text-base text-textPrimaryDark font-normal">
                 {item.message}
               </Text>
             </View>
@@ -88,15 +113,16 @@ export default function Conversation(): JSX.Element {
               }}
             />
             <View className="flex-1">
-              <Text className="text-lg text-textPrimaryDark font-medium">
-                Salus
-              </Text>
-              <Text
-                className="text-sm text-textPrimaryDark"
-                style={{ flexWrap: "wrap" }}
+              <Markdown
+                style={{
+                  body: { fontSize: 16, color: "#f5f5f5", lineHeight: 24 }, // Adjust text size and color
+                  link: { color: "#1E90FF" }, // Optional: style links
+                }}
+                // className="text-base text-textPrimaryDark"
+                // style={{ flexWrap: "wrap" }}
               >
                 {item.message}
-              </Text>
+              </Markdown>
             </View>
           </View>
         )}
