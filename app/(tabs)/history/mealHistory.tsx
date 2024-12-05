@@ -4,72 +4,25 @@ import {
   SectionList,
   SectionListData,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Container from "@/components/layout/Container";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-
-// Define types for meals and grouped meals
-interface Meal {
-  mealId: string;
-  foodDesc: string;
-  mealType: string; // New property for meal type
-  calories: number;
-  mealTimestamp: string;
-}
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface Section {
   title: string;
-  data: Meal[];
+  data: ShortMeal[];
 }
 
-// Sample data received from backend, already sorted
-const sampleMeals: Meal[] = [
-  {
-    mealId: "1",
-    foodDesc: "Oatmeal with Berries and Chocolate",
-    mealType: "Breakfast",
-    calories: 300,
-    mealTimestamp: "2023-11-08",
-  },
-  {
-    mealId: "2",
-    foodDesc: "Grilled Chicken Salad",
-    mealType: "Lunch",
-    calories: 550,
-    mealTimestamp: "2023-11-08",
-  },
-  {
-    mealId: "3",
-    foodDesc: "Steak with Vegetables",
-    mealType: "Dinner",
-    calories: 700,
-    mealTimestamp: "2023-11-07",
-  },
-  {
-    mealId: "4",
-    foodDesc: "Greek Yogurt with Honey",
-    mealType: "Snack",
-    calories: 200,
-    mealTimestamp: "2023-11-08",
-  },
-  {
-    mealId: "5",
-    foodDesc: "Avocado Toast",
-    mealType: "Breakfast",
-    calories: 400,
-    mealTimestamp: "2023-11-07",
-  },
-];
-
 // Group meals by date for the section list
-const groupMealsByDate = (meals: Meal[]): Section[] => {
+const groupMealsByDate = (meals: ShortMeal[]): Section[] => {
   const groupedMeals = meals.reduce(
-    (grouped: { [date: string]: Meal[] }, meal) => {
-      (grouped[meal.mealTimestamp] = grouped[meal.mealTimestamp] || []).push(
-        meal
-      );
+    (grouped: { [date: string]: ShortMeal[] }, meal) => {
+      const date = meal.mealTimestamp.split("T")[0]; // Extract the date part
+      (grouped[date] = grouped[date] || []).push(meal);
       return grouped;
     },
     {}
@@ -83,27 +36,70 @@ const groupMealsByDate = (meals: Meal[]): Section[] => {
 
 export default function MealHistory() {
   const router = useRouter();
-  const [data, setData] = useState<Section[]>(groupMealsByDate(sampleMeals));
+  const [data, setData] = useState<Section[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Placeholder function for loading more data
-  const loadMoreData = () => {
-    // This function would load more data from the backend
-    // Append new sections or items to the data state here
-    console.log("Loading more data...");
+  const fetchMeals = async () => {
+    try {
+      const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/meal/mealHistory`;
+      const { data: session } = await supabase.auth.getSession();
+
+      if (!session || !session.session) {
+        throw new Error("User is not authenticated.");
+      }
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} - ${response.statusText}`);
+      }
+
+      const meals: ShortMeal[] = await response.json();
+      setData(groupMealsByDate(meals));
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchMeals();
+  }, []);
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-darkBackground">
+        <ActivityIndicator size="large" color="#f5f5f5" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 justify-center items-center bg-darkBackground">
+        <Text className="text-lg font-medium text-red-500">{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-darkBackground">
       <SectionList
         className="p-4"
         sections={data}
-        keyExtractor={(item) => item.mealId.toString()}
-        renderItem={({ item }: { item: Meal }) => (
+        keyExtractor={(item) => item.mealId}
+        renderItem={({ item }: { item: ShortMeal }) => (
           <TouchableOpacity
             onPress={() =>
               router.push({
                 pathname: "/history/mealDetails",
-                params: { mealId: "01e45fab-c7ef-4cd2-8c67-9036cda0a3c9" },
+                params: { mealId: item.mealId },
               })
             }
           >
@@ -134,7 +130,7 @@ export default function MealHistory() {
         renderSectionHeader={({
           section,
         }: {
-          section: SectionListData<Meal>;
+          section: SectionListData<ShortMeal>;
         }) => (
           <View className="bg-darkBackground p-1 mb-2 shadow-lg">
             <Text className="text-base font-semibold text-textAccentDark">
@@ -142,9 +138,8 @@ export default function MealHistory() {
             </Text>
           </View>
         )}
-        onEndReached={loadMoreData} // Trigger loading more data
-        onEndReachedThreshold={0.5} // Load more when 50% from the bottom
-        stickySectionHeadersEnabled={false} // Disable sticky headers
+        onEndReachedThreshold={0.5}
+        stickySectionHeadersEnabled={false}
       />
     </View>
   );
