@@ -4,8 +4,8 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Platform,
-  KeyboardAvoidingView,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useRouter } from "expo-router";
@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ModalHeader from "@/components/layout/ModalHeader";
 import CalendarPicker from "@/components/calendars/CalendarPicker";
 import AccessoryTextInput from "@/components/inputs/AccessoryTextInput";
+import { supabase } from "@/lib/supabase";
 
 type IconNames = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -24,6 +25,7 @@ export default function LogMeal() {
   const [mealType, setMealType] = useState("");
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false); // New state for loading
 
   const mealTypes = [
     { id: "breakfast", icon: "sunny" as IconNames, label: "Breakfast" },
@@ -41,9 +43,58 @@ export default function LogMeal() {
     router.back();
   };
 
-  const handleSave = () => {
-    console.log("Meal logged:", meal, dayjs(date).format("MMMM D, YYYY"));
-    router.back();
+  const handleSave = async () => {
+    if (!meal.trim()) {
+      Alert.alert("Error", "Meal description cannot be empty.");
+      return;
+    }
+
+    setLoading(true); // Set loading to true before starting the request
+
+    try {
+      const jwt = await supabase.auth
+        .getSession()
+        .then((res) => res.data.session?.access_token);
+
+      if (!jwt) {
+        console.error("No JWT found, user may not be authenticated");
+        Alert.alert("Error", "You must be logged in to save a meal.");
+        setLoading(false); // Set loading to false
+        return;
+      }
+
+      const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/meal/logMeal`;
+      const payload = {
+        timestamp: dayjs(date).format("YYYY-MM-DDTHH:mm:ss"),
+        foodDescription: meal.trim(),
+        mealType: mealType || null, // Send mealType as null if not selected
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to log meal:", errorData);
+        Alert.alert("Error", `Failed to log meal: ${errorData.message}`);
+        setLoading(false); // Set loading to false
+        return;
+      }
+
+      Alert.alert("Success", "Meal logged successfully!");
+      router.back(); // Navigate back after successful logging
+    } catch (error) {
+      console.error("Error logging meal:", error);
+      Alert.alert("Error", "Failed to log meal. Please try again.");
+    } finally {
+      setLoading(false); // Set loading to false after request finishes
+    }
   };
 
   return (
@@ -56,6 +107,13 @@ export default function LogMeal() {
         cancelText="Back"
         saveText="Save"
       />
+
+      {/* Show loading indicator */}
+      {loading && (
+        <View className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black/50 z-10">
+          <ActivityIndicator size="large" color="#c99708" />
+        </View>
+      )}
 
       {/* Scrollable Content */}
       <KeyboardAwareScrollView
