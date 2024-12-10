@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import React from "react";
 
 interface ContainerProps {
@@ -18,14 +18,24 @@ const Container: React.FC<ContainerProps> = ({
     <View
       className={`${
         flex ? "flex-1" : "flex"
-      } ${padding} bg-darkContainer rounded-md shadow-xl mb-4 ${
-        extraClassNames || ""
-      }`}
-      style={{ elevation: 10 }} // Increase elevation for Android
+      } ${padding} bg-darkContainer rounded-md mb-4 ${extraClassNames || ""}`}
+      style={[styles.shadow, { elevation: 15 }]} // Adjust elevation for Android
     >
       {children}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  shadow: {
+    shadowColor: "#000", // Color of the shadow
+    shadowOffset: {
+      width: 0,
+      height: 2, // Height of the shadow (distance from the element)
+    },
+    shadowOpacity: 0.2, // Opacity of the shadow
+    shadowRadius: 5, // Spread of the shadow (controls the size)
+  },
+});
 
 export default Container;

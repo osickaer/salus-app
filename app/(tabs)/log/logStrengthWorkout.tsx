@@ -1,4 +1,4 @@
-// app/(tabs)/log/workout.tsx
+// app/(tabs)/log/logStrengthWorkout.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -6,41 +6,33 @@ import {
   TextInput,
   TouchableOpacity,
   Pressable,
+  FlatList,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store/store";
+import { clearExercises } from "@/store/slices/exercisesSlice";
 import Container from "@/components/layout/Container";
 import CalendarPicker from "@/components/calendars/CalendarPicker";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Ionicons } from "@expo/vector-icons";
 import ModalHeader from "@/components/layout/ModalHeader";
 
-let exerciseData = [
-  {
-    exerciseName: "Barbell Bench",
-    sets: [
-      { setNum: 1, previous: "125 lbs x 12", reps: 12, weight: 135 },
-      { setNum: 2, previous: "125 lbs x 12", reps: 12, weight: 135 },
-      { setNum: 3, previous: "125 lbs x 12", reps: 12, weight: 150 },
-    ],
-  },
-  {
-    exerciseName: "Barbell Squat",
-    sets: [
-      { setNum: 1, previous: "125 lbs x 12", reps: 12, weight: 135 },
-      { setNum: 2, previous: "125 lbs x 12", reps: 12, weight: 135 },
-      { setNum: 3, previous: "125 lbs x 12", reps: 12, weight: 150 },
-    ],
-  },
-];
-
 export default function LogWorkout() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [workout, setWorkout] = useState("");
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
 
+  // Fetch exercises from the Redux store
+  const exercises = useSelector(
+    (state: RootState) => state.exercises.temporaryExercises
+  );
+
   const handleCancel = () => {
-    console.log("Action cancelled");
+    // Clear exercises and navigate back
+    dispatch(clearExercises());
     router.back();
   };
 
@@ -56,7 +48,7 @@ export default function LogWorkout() {
         title="Log Strength Workout"
         onCancel={handleCancel}
         onSave={handleSaveWorkout}
-        cancelText="Back"
+        cancelText="Cancel"
         saveText="Save"
       />
       <KeyboardAwareScrollView
@@ -64,6 +56,7 @@ export default function LogWorkout() {
         contentContainerStyle={{ paddingBottom: 160 }}
         enableOnAndroid={true}
       >
+        {/* Workout Name Input */}
         <Container extraClassNames="bg-tertiaryBackground justify-center">
           <View className="flex-row">
             <Ionicons name="pricetag" size={24} color="#737373" />
@@ -78,6 +71,8 @@ export default function LogWorkout() {
             />
           </View>
         </Container>
+
+        {/* Date Picker */}
         <Container extraClassNames="bg-tertiaryBackground justify-center">
           <CalendarPicker
             date={date}
@@ -89,14 +84,20 @@ export default function LogWorkout() {
           />
         </Container>
 
-        {exerciseData.map(({ exerciseName, sets }) => (
-          <Container extraClassNames="bg-tertiaryBackground justify-center">
+        {/* Render Exercises */}
+        {exercises.map(({ exerciseName, sets }, exerciseIndex) => (
+          <Container
+            key={exerciseName + exerciseIndex}
+            extraClassNames="bg-tertiaryBackground justify-center"
+          >
             <View className="flex-row justify-between">
               <Text className="text-textPrimaryDark text-lg font-medium">
                 {exerciseName}
               </Text>
               <Ionicons name="ellipsis-horizontal" size={24} color="#737373" />
             </View>
+
+            {/* Render Sets */}
             <View className="flex-row justify-between mt-2">
               <Text className="flex-[1] text-[#888] text-base font-normal text-center">
                 set
@@ -112,9 +113,12 @@ export default function LogWorkout() {
               </Text>
               <View className="flex-[1]"></View>
             </View>
-            <View className="bg-darkSecondaryContainer opacity-50 h-[0.5px]"></View>
-            {sets.map(({ setNum, previous, reps, weight }) => (
-              <View className="flex-row justify-between mt-2 items-center">
+            <View className="bg-darkSecondaryContainer my-2 opacity-50 h-[0.5px]"></View>
+            {sets.map(({ setNum, previous, reps, weight }, setIndex) => (
+              <View
+                key={`${exerciseName}-${setNum}-${setIndex}`}
+                className="flex-row justify-between my-2 items-center"
+              >
                 <Text className="flex-[1] text-textPrimaryDark text-base font-normal text-center">
                   {setNum}
                 </Text>
@@ -129,7 +133,7 @@ export default function LogWorkout() {
                       textAlignVertical: "center",
                       lineHeight: 0,
                     }}
-                    keyboardType="decimal-pad" // Allows decimals
+                    keyboardType="decimal-pad"
                     maxLength={5}
                   />
                 </View>
@@ -141,12 +145,11 @@ export default function LogWorkout() {
                       textAlignVertical: "center",
                       lineHeight: 0,
                     }}
-                    keyboardType="decimal-pad" // Allows decimals
+                    keyboardType="decimal-pad"
                     returnKeyType="done"
                     maxLength={5}
                   />
                 </View>
-
                 <View className="flex-[1] items-end">
                   <Ionicons
                     name="ellipsis-horizontal"
@@ -156,9 +159,11 @@ export default function LogWorkout() {
                 </View>
               </View>
             ))}
+            <View className="bg-darkSecondaryContainer my-2 opacity-50 h-[0.5px]"></View>
           </Container>
         ))}
 
+        {/* Add Exercise Button */}
         <Pressable
           onPress={() => {
             router.push("/log/exerciseSearch");

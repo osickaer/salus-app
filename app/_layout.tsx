@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { View, Text } from "react-native";
-import { Stack, Tabs } from "expo-router";
+import { Stack } from "expo-router";
 import { supabase } from "../lib/supabase";
 import Auth from "../components/auth/Auth"; // Your Auth component
 import * as SplashScreen from "expo-splash-screen";
 import { Session } from "@supabase/supabase-js";
+import { Provider } from "react-redux";
+import { store } from "../store/store"; // Import your Redux store
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -42,12 +44,15 @@ export default function RootLayout() {
     return null;
   }
 
-  // If the user is authenticated, show the tab navigator; otherwise, show the Auth component
-  return session && session.user ? (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
-  ) : (
-    <Auth />
+  return (
+    <Provider store={store}>
+      {session && session.user ? (
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+      ) : (
+        <Auth />
+      )}
+    </Provider>
   );
 }
