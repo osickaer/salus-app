@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase";
 import ModalHeader from "@/components/layout/ModalHeader";
 import { useDispatch } from "react-redux";
 import { addExercise } from "@/store/slices/exercisesSlice";
+import { v4 as uuidv4 } from "uuid";
 
 const muscleGroups = [
   "All Muscle Groups",
@@ -120,9 +121,10 @@ export default function ExerciseSearch() {
   const handleAddExercise = (exercise: Exercise) => {
     dispatch(
       addExercise({
+        instanceId: uuidv4(), // Unique ID for this instance
         exerciseName: exercise.exerciseName,
         strengthExerciseId: exercise.strengthExerciseId,
-        sets: [{ setNum: 1, previous: "", reps: 0, weight: 0 }], // Empty set
+        sets: [{ setNum: 1, previous: "", reps: "", weight: "" }], // Default set
       })
     );
     router.back(); // Navigate back to LogStrengthWorkout
@@ -223,29 +225,28 @@ export default function ExerciseSearch() {
           data={filteredExercises}
           keyExtractor={(item) => item.strengthExerciseId}
           renderItem={({ item }) => (
-            <Container extraClassNames="bg-tertiaryBackground mb-3">
-              <View className="flex-row justify-between items-center">
-                <Pressable
-                  onPress={() => handleAddExercise(item)} // Action when the entire row is tapped
-                  className="flex-row items-center"
-                >
-                  <View className="w-[20px] h-[20px] bg-primary rounded-full flex items-center justify-center">
-                    <Ionicons name="add" size={16} color="#fff" />
+            <Pressable onPress={() => handleAddExercise(item)}>
+              <Container extraClassNames="bg-tertiaryBackground mb-3">
+                <View className="flex-row justify-between items-center">
+                  <View className="flex-row flex-1 items-center">
+                    <View className="w-[20px] h-[20px] bg-primary rounded-full flex items-center justify-center">
+                      <Ionicons name="add" size={16} color="#fff" />
+                    </View>
+                    <Text className="ml-4 text-textPrimaryDark text-lg font-normal">
+                      {item.exerciseName}
+                    </Text>
                   </View>
-                  <Text className="ml-4 text-textPrimaryDark text-lg font-normal">
-                    {item.exerciseName}
-                  </Text>
-                </Pressable>
 
-                <TouchableOpacity>
-                  <Ionicons
-                    name="information-circle-outline"
-                    size={24}
-                    color="#737373"
-                  />
-                </TouchableOpacity>
-              </View>
-            </Container>
+                  <TouchableOpacity>
+                    <Ionicons
+                      name="information-circle-outline"
+                      size={24}
+                      color="#737373"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </Container>
+            </Pressable>
           )}
         />
       )}

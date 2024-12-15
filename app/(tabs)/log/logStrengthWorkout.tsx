@@ -6,17 +6,26 @@ import {
   TextInput,
   TouchableOpacity,
   Pressable,
-  FlatList,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
-import { clearExercises } from "@/store/slices/exercisesSlice";
+import {
+  removeExercise,
+  clearExercises,
+  addSet,
+  removeSet,
+  updateSet,
+} from "@/store/slices/exercisesSlice";
 import Container from "@/components/layout/Container";
 import CalendarPicker from "@/components/calendars/CalendarPicker";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Ionicons } from "@expo/vector-icons";
 import ModalHeader from "@/components/layout/ModalHeader";
+import OptionsButton from "@/components/buttons/OptionsButton";
+import { supabase } from "@/lib/supabase";
 
 export default function LogWorkout() {
   const router = useRouter();
@@ -24,11 +33,43 @@ export default function LogWorkout() {
   const [workout, setWorkout] = useState("");
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false); // Track loading state
 
   // Fetch exercises from the Redux store
   const exercises = useSelector(
     (state: RootState) => state.exercises.temporaryExercises
   );
+
+  const handleAddSet = (instanceId: string) => {
+    const exercise = exercises.find((e) => e.instanceId === instanceId);
+    const nextSetNum = exercise ? exercise.sets.length + 1 : 1;
+
+    dispatch(
+      addSet({
+        instanceId,
+        newSet: {
+          setNum: nextSetNum,
+          previous: "",
+          reps: "",
+          weight: "",
+        },
+      })
+    );
+  };
+
+  const handleRemoveSet = (instanceId: string, setNum: number) => {
+    dispatch(
+      removeSet({
+        instanceId,
+        setNum,
+      })
+    );
+  };
+
+  const handleDeleteExercise = (instanceId: string) => {
+    console.log("Deleting exercise with ID:", instanceId); // Debug log
+    dispatch(removeExercise(instanceId));
+  };
 
   const handleCancel = () => {
     // Clear exercises and navigate back
@@ -36,10 +77,57 @@ export default function LogWorkout() {
     router.back();
   };
 
-  const handleSaveWorkout = () => {
-    // Handle saving workout logic here
-    console.log("Workout logged");
-    router.back(); // Navigate back to the previous page
+  const handleSaveWorkout = async () => {
+    Alert.alert("Save Workout", "Are you sure you want to save this workout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Save",
+        onPress: async () => {
+          setLoading(true); // Start loading
+          try {
+            const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/workout/logStrengthWorkout`;
+            const { data: session } = await supabase.auth.getSession();
+
+            if (!session || !session.session) {
+              throw new Error("User is not authenticated.");
+            }
+
+            const workoutData = {
+              workoutName: workout,
+              workoutNotes: "", // Add notes input if needed
+              workoutDate: date.toISOString(),
+              strengthExercises: exercises.map((exercise) => ({
+                exerciseName: exercise.exerciseName,
+                sets: exercise.sets,
+              })),
+            };
+
+            const response = await fetch(apiUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${session.session.access_token}`,
+              },
+              body: JSON.stringify(workoutData),
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              Alert.alert("Success", result.message);
+              dispatch(clearExercises());
+              router.back();
+            } else {
+              const error = await response.json();
+              Alert.alert("Error", error.message || "Failed to save workout.");
+            }
+          } catch (error: any) {
+            Alert.alert("Error", error.message || "Something went wrong.");
+          } finally {
+            setLoading(false); // End loading
+          }
+        },
+      },
+    ]);
   };
 
   return (
@@ -51,6 +139,13 @@ export default function LogWorkout() {
         cancelText="Cancel"
         saveText="Save"
       />
+
+      {loading && (
+        <View className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black/50 z-10">
+          <ActivityIndicator size="large" color="#c99708" />
+        </View>
+      )}
+
       <KeyboardAwareScrollView
         className="px-4"
         contentContainerStyle={{ paddingBottom: 160 }}
@@ -63,6 +158,7 @@ export default function LogWorkout() {
             <TextInput
               placeholder="Enter workout name"
               placeholderTextColor="#888"
+              returnKeyType="done"
               className="flex-1 text-textPrimaryDark ml-4"
               style={{ fontSize: 16 }}
               value={workout}
@@ -85,16 +181,23 @@ export default function LogWorkout() {
         </Container>
 
         {/* Render Exercises */}
-        {exercises.map(({ exerciseName, sets }, exerciseIndex) => (
+        {exercises.map(({ exerciseName, sets, instanceId }, exerciseIndex) => (
           <Container
-            key={exerciseName + exerciseIndex}
+            key={instanceId}
             extraClassNames="bg-tertiaryBackground justify-center"
           >
             <View className="flex-row justify-between">
               <Text className="text-textPrimaryDark text-lg font-medium">
                 {exerciseName}
               </Text>
-              <Ionicons name="ellipsis-horizontal" size={24} color="#737373" />
+              <OptionsButton
+                items={[
+                  {
+                    label: "Delete Exercise",
+                    onPress: () => handleDeleteExercise(instanceId),
+                  },
+                ]}
+              />
             </View>
 
             {/* Render Sets */}
@@ -134,7 +237,18 @@ export default function LogWorkout() {
                       lineHeight: 0,
                     }}
                     keyboardType="decimal-pad"
+                    returnKeyType="done"
                     maxLength={5}
+                    value={weight.toString()}
+                    onChangeText={(value) =>
+                      dispatch(
+                        updateSet({
+                          instanceId,
+                          setNum,
+                          weight: value,
+                        })
+                      )
+                    }
                   />
                 </View>
                 <View className="flex-[3] items-center">
@@ -148,18 +262,48 @@ export default function LogWorkout() {
                     keyboardType="decimal-pad"
                     returnKeyType="done"
                     maxLength={5}
+                    value={reps.toString()}
+                    onChangeText={(value) =>
+                      dispatch(
+                        updateSet({
+                          instanceId,
+                          setNum,
+                          reps: value,
+                        })
+                      )
+                    }
                   />
                 </View>
                 <View className="flex-[1] items-end">
-                  <Ionicons
-                    name="ellipsis-horizontal"
-                    size={24}
-                    color="#737373"
+                  <OptionsButton
+                    items={[
+                      {
+                        label: "Delete Set",
+                        onPress: () => handleRemoveSet(instanceId, setNum),
+                      },
+                    ]}
                   />
                 </View>
               </View>
             ))}
+
             <View className="bg-darkSecondaryContainer my-2 opacity-50 h-[0.5px]"></View>
+            <Pressable
+              onPress={() => handleAddSet(instanceId)}
+              className="flex-row mt-2"
+            >
+              <TouchableOpacity className="w-[24px] h-[24px] bg-darkSecondaryContainer rounded-full flex items-center justify-center">
+                <Ionicons
+                  color="#202122"
+                  name="add"
+                  size={18}
+                  style={{ marginLeft: 0.5 }}
+                />
+              </TouchableOpacity>
+              <Text className="text-lg text-textMutedDark ml-2 font-normal">
+                Add set
+              </Text>
+            </Pressable>
           </Container>
         ))}
 

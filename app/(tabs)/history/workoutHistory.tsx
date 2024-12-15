@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import dayjs from "dayjs";
+import OptionsButton from "@/components/buttons/OptionsButton";
 
 // Define types for workouts
 interface StrengthWorkoutDetail {
@@ -19,7 +20,7 @@ interface StrengthWorkoutDetail {
   workoutType: string;
   workoutDate: string;
   workoutName: string;
-  exerciseName: string[];
+  exerciseNames: string[];
 }
 interface CardioWorkoutDetail {
   workoutId: number;
@@ -29,16 +30,7 @@ interface CardioWorkoutDetail {
   cardioExercise: string;
 }
 
-// Sample data received from backend, already sorted
-const sampleStrengthWorkouts: StrengthWorkoutDetail[] = [
-  {
-    workoutId: 1,
-    workoutType: "strength_training",
-    workoutDate: "2024-09-07",
-    workoutName: "pull day",
-    exerciseName: ["Pullups", "Barbell Rows", "Dumbell Curls", "Hammer Curls"],
-  },
-];
+// Sample data received from backend, already sorte
 
 const sampleCardioWorkouts: CardioWorkoutDetail[] = [
   {
@@ -95,33 +87,70 @@ export default function WorkoutHistory() {
         throw new Error(`Failed to fetch workouts: ${response.statusText}`);
       }
 
-      const rawData = await response.json();
-
-      // Transform data to group exercises under their respective workouts
-      const transformedData: StrengthWorkoutDetail[] = Object.values(
-        rawData.reduce((acc: any, item: any) => {
-          const workoutId = item.workout_id;
-          if (!acc[workoutId]) {
-            acc[workoutId] = {
-              workoutId: Number(workoutId),
-              workoutType: item.workout_type,
-              workoutDate: item.workout_date,
-              workoutName: item.workout_name,
-              exerciseName: [],
-            };
-          }
-          acc[workoutId].exerciseName.push(item.exercise_name);
-          return acc;
-        }, {})
-      );
-
-      setStrengthWorkoutData(transformedData);
+      const data = await response.json();
+      console.log(data[0].exerciseNames);
+      setStrengthWorkoutData(data); // Directly set data from API
     } catch (error) {
       console.error("Error fetching strength workouts:", error);
       Alert.alert("Error", "Failed to load strength workouts.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteWorkout = async (workoutId: number) => {
+    Alert.alert(
+      "Delete Workout",
+      "Are you sure you want to delete this workout?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          onPress: async () => {
+            setLoading(true); // Start loading
+            try {
+              const jwt = await supabase.auth
+                .getSession()
+                .then((res) => res.data.session?.access_token);
+
+              if (!jwt) {
+                Alert.alert(
+                  "Error",
+                  "You must be logged in to delete a workout."
+                );
+                setLoading(false);
+                return;
+              }
+
+              const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/workout/${workoutId}`;
+
+              const response = await fetch(apiUrl, {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${jwt}`,
+                  "Content-Type": "application/json",
+                },
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(
+                  errorData.message || "Failed to delete workout."
+                );
+              }
+
+              // Refresh the workouts list
+              await fetchStrengthWorkouts();
+            } catch (error) {
+              console.error("Error deleting workout:", error);
+              Alert.alert("Error", "Failed to delete workout.");
+            } finally {
+              setLoading(false); // End loading
+            }
+          },
+        },
+      ]
+    );
   };
 
   // Tabs for navigation
@@ -180,7 +209,7 @@ export default function WorkoutHistory() {
 
                   {/* Exercise Names */}
                   <View className="space-y-1">
-                    {item.exerciseName.map((exercise, index) => (
+                    {item.exerciseNames.map((exercise, index) => (
                       <Text
                         key={index}
                         className="text-md text-textSecondaryDark font-normal"
@@ -192,11 +221,13 @@ export default function WorkoutHistory() {
                 </View>
 
                 {/* Icon */}
-                <Ionicons
-                  color="#f5f5f5"
-                  name="ellipsis-horizontal"
-                  size={20}
-                  style={{ marginLeft: 8 }}
+                <OptionsButton
+                  items={[
+                    {
+                      label: "Delete Workout",
+                      onPress: () => handleDeleteWorkout(item.workoutId),
+                    },
+                  ]}
                 />
               </View>
             </Container>

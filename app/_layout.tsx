@@ -7,6 +7,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { Session } from "@supabase/supabase-js";
 import { Provider } from "react-redux";
 import { store } from "../store/store"; // Import your Redux store
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import "react-native-get-random-values";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -46,13 +48,15 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      {session && session.user ? (
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-      ) : (
-        <Auth />
-      )}
+      <ActionSheetProvider>
+        {session && session.user ? (
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+        ) : (
+          <Auth />
+        )}
+      </ActionSheetProvider>
     </Provider>
   );
 }
