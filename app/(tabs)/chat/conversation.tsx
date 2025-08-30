@@ -22,7 +22,7 @@ type Message = {
 
 export default function Conversation(): JSX.Element {
   const { conversationId } = useLocalSearchParams(); // Extract conversationId from route params
-  const [message, setMessage] = useState<string>(""); // State for input message
+  const [chatInput, setChatInput] = useState<string>(""); // State for input message
   const [messages, setMessages] = useState<Message[]>([]); // State for all messages
 
   useEffect(() => {
@@ -73,14 +73,14 @@ export default function Conversation(): JSX.Element {
   }, [conversationId]);
 
   const handleSend = (): void => {
-    if (message.trim()) {
+    if (chatInput.trim()) {
       const newMessage: Message = {
         chatId: Date.now().toString(), // Use timestamp as unique ID
         role: "user",
-        message,
+        message: chatInput,
       };
       setMessages((prev) => [...prev, newMessage]);
-      setMessage(""); // Clear the input after sending the message
+      setChatInput(""); // Clear the input after sending the message
     }
   };
 
@@ -145,8 +145,8 @@ export default function Conversation(): JSX.Element {
         {/* Chat Input fixed at the bottom */}
         <View className="px-4 mb-4 mt-2">
           <ChatTextInput
-            value={message} // The current message state
-            onChangeText={setMessage} // Update the message state as the user types
+            value={chatInput} // The current message state
+            onChangeText={setChatInput} // Update the message state as the user types
             placeholder="Type your message..."
             onSend={handleSend} // Function to handle sending the message
           />

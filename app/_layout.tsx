@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import { store } from "../store/store"; // Import your Redux store
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import "react-native-get-random-values";
+import "../global.css";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
