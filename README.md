@@ -1,6 +1,8 @@
-# Welcome to your Expo app 👋
+# Salus
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Salus is a personal fitness app that brings workout logging, nutrition tracking, and AI coaching into one place. Users can record strength workouts, log meals in plain language, and review their activity and nutrition history. The goal is to make coaching more relevant by grounding recommendations in what someone has actually logged.
+
+The mobile app uses React Native, Expo, TypeScript, and Supabase authentication, with a separate NestJS backend for fitness records and AI features. This repository contains the mobile frontend.
 
 ## Get started
 
